@@ -295,6 +295,63 @@ class VendorUsageValue(UsageValue):
         return self._list
 
 
+class Unit():
+    _unit_names = {
+        1: {
+            1: "cm",
+            2: "g",
+            3: "s",
+            4: "K",
+            5: "A",
+            6: "cd",
+        },
+        2: {
+            1: "rad",
+            2: "g",
+            3: "s",
+            4: "K",
+            5: "A",
+            6: "cd",
+        },
+    }
+
+    def __init__(self, unit, exp: Optional[int] = None):
+        self._unit = unit
+        self._exp = exp or 0
+
+    def __repr__(self):
+        system = self._unit & 0x0F
+
+        if system == 0 or system not in self._unit_names:
+            return f", unit=0x{self._unit:x}, unit_exp={self._exp}"
+
+        units = list()
+
+        for nibble in range(1, 7):
+            exp = (self._unit >> (nibble * 4)) & 0xF
+
+            if exp == 0:
+                continue
+
+            if exp >= 8:
+                exp = exp - 16
+
+            assert nibble in self._unit_names[system]
+            name = self._unit_names[system][nibble]
+
+            if exp != 1:
+                name += f"^{exp}"
+
+            units.append(name)
+
+        unit_exp = ""
+
+        if self._exp != 0:
+            unit_exp = f" * 10^{self._exp - 16 if self._exp >= 8 else self._exp}"
+
+        return "*".join(units) + unit_exp
+
+
 class BaseItem():
     def __init__(self, offset: int, size: int):
         self._offset = BitNumber(offset)
@@ -326,6 +383,8 @@ class MainItem(BaseItem):
         logical_max: int,
         physical_min: Optional[int] = None,
         physical_max: Optional[int] = None,
+        unit: Optional[int] = None,
+        unit_exp: Optional[int] = None,
     ):
         super().__init__(offset, size)
         self._flags = flags
@@ -333,6 +392,8 @@ class MainItem(BaseItem):
         self._logical_max = logical_max
         self._physical_min = physical_min
         self._physical_max = physical_max
+        self._unit = unit
+        self._unit_exp = unit_exp
         # TODO: unit
 
     @property
@@ -358,6 +419,14 @@ class MainItem(BaseItem):
     @property
     def physical_max(self) -> Optional[int]:
         return self._physical_max
+
+    @property
+    def unit(self) -> Optional[int]:
+        return self._unit
+
+    @property
+    def unit_exp(self) -> Optional[int]:
+        return self._unit_exp
 
     # flags
 
@@ -401,8 +470,10 @@ class VariableItem(MainItem):
         logical_max: int,
         physical_min: Optional[int] = None,
         physical_max: Optional[int] = None,
+        unit: Optional[int] = None,
+        unit_exp: Optional[int] = None,
     ):
-        super().__init__(offset, size, flags, logical_min, logical_max, physical_min, physical_max)
+        super().__init__(offset, size, flags, logical_min, logical_max, physical_min, physical_max, unit, unit_exp)
         self._usage = usage
 
         try:
@@ -897,10 +968,11 @@ class ReportDescriptor():
                         if report_id not in offset_list:
                             offset_list[report_id] = 0
 
-                elif tag in (TagGlobal.UNIT, TagGlobal.UNIT_EXPONENT):
-                    warnings.warn(HIDUnsupportedWarning(
-                        "Data specifies a unit or unit exponent, but we don't support those yet"
-                    ))
+                elif tag == TagGlobal.UNIT:
+                    glob['unit'] = data
+
+                elif tag == TagGlobal.UNIT_EXPONENT:
+                    glob['unit_exp'] = data
 
                 elif tag == TagGlobal.REPORT_COUNT:
                     report_count = data
