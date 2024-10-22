@@ -1041,6 +1041,32 @@ class FIDO(_Data):
     OUTPUT_REPORT_DATA = 0x21, 'Output Report Data'
 
 
+class Digitizer(_Data):
+    DIGITIZER = 0x01, 'Digitizer', UsageTypes.CA
+    PEN = 0x02, 'Pen', UsageTypes.CA
+    LIGHT_PEN = 0x03, 'Light Pen', UsageTypes.CA
+    TOUCH_SCREEN = 0x04, 'Touch Screen', UsageTypes.CA
+    TOUCH_PAD = 0x05, 'Touch Pad', UsageTypes.CA
+    STYLUS = 0x20, 'Stylus', (UsageTypes.CA, UsageTypes.CL)
+    PUCK = 0x21, 'Puck', UsageTypes.CL
+    FINGER = 0x22, 'Finger', UsageTypes.CL
+    TIP_PRESSURE = 0x30, 'Tip Pressure', UsageTypes.DV
+    IN_RANGE = 0x32, 'In Range', UsageTypes.MC
+    BATTERY_STRENGTH = 0x3B, 'Battery Strength', UsageTypes.DV
+    INVERT = 0x3C, 'Invert', UsageTypes.MC
+    TIP_SWITCH = 0x42, 'Tip Switch', UsageTypes.MC
+    SECONDARY_TIP_SWITCH = 0x43, 'Secondary Tip Switch', UsageTypes.MC
+    BARREL_SWITCH = 0x44, 'Barrel Switch', UsageTypes.MC
+    ERASER = 0x45, 'Eraser', UsageTypes.MC
+    TABLET_PICK = 0x46, 'Tablet Pick', UsageTypes.MC
+    TOUCH_VALID = 0x47, 'Touch Valid', UsageTypes.MC
+    CONTACT_IDENTIFIER = 0x51, 'Contact Identifier', UsageTypes.DV
+    CONTACT_COUNT = 0x54, 'Contact Count', UsageTypes.DV
+    SCAN_TIME = 0x56, 'Scan Time', UsageTypes.DV
+    SECONDARY_BARREL_SWITCH = 0x5A, 'Secondary Barrel Switch', UsageTypes.MC
+    TRANSDUCER_SERIAL_NUMBER = 0x5B, 'Transducer Serial Number', UsageTypes.SV
+
+
 class UsagePages(_Data):
     GENERIC_DESKTOP_CONTROLS_PAGE = 0x01, 'Generic Desktop Controls', GenericDesktopControls
     SIMULATION_CONTROLS_PAGE = 0x02, 'Simulation Controls'
@@ -1054,7 +1080,7 @@ class UsagePages(_Data):
     ORDINAL_PAGE = 0x0A, 'Ordinal'
     TELEPHONY_PAGE = 0x0B, 'Telephony'
     CONSUMER_PAGE = 0x0C, 'Consumer', Consumer
-    DIGITIZER_PAGE = 0x0D, 'Digitizer'
+    DIGITIZER_PAGE = 0x0D, 'Digitizer', Digitizer
     HAPTICS_PAGE = 0x0E, 'Haptics'
     PID_PAGE = 0x0F, 'PID'
     UNICODE_PAGE = 0x10, 'Unicode'
