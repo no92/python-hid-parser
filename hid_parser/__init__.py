@@ -652,11 +652,11 @@ class ReportDescriptor():
     def get_feature_report_size(self, report_id: Optional[int] = None) -> BitNumber:
         return self._get_report_size(self.get_feature_items(report_id))
 
-    def _parse_report_items(self, items: List[BaseItem], data: Sequence[int]) -> Dict[Usage, UsageValue]:
-        parsed: Dict[Usage, UsageValue] = {}
+    def _parse_report_items(self, items: List[BaseItem], data: Sequence[int]) -> List[Tuple[Usage, UsageValue]]:
+        parsed: List[Tuple[Usage, UsageValue]] = list()
         for item in items:
             if isinstance(item, VariableItem):
-                parsed[item.usage] = item.parse(data)
+                parsed.append((item.usage, item.parse(data)))
             elif isinstance(item, ArrayItem):
                 usage_values = item.parse(data)
                 for usage in usage_values:
@@ -669,19 +669,19 @@ class ReportDescriptor():
                 raise TypeError(f'Unknown item: {item}')
         return parsed
 
-    def _parse_report(self, item_poll: _ITEM_POOL, data: Sequence[int]) -> Dict[Usage, UsageValue]:
+    def _parse_report(self, item_poll: _ITEM_POOL, data: Sequence[int]) -> List[Tuple[Usage, UsageValue]]:
         if None in item_poll:  # unnumbered reports
             return self._parse_report_items(item_poll[None], data)
         else:  # numbered reports
             return self._parse_report_items(item_poll[data[0]], data[1:])
 
-    def parse_input_report(self, data: Sequence[int]) -> Dict[Usage, UsageValue]:
+    def parse_input_report(self, data: Sequence[int]) -> List[Tuple[Usage, UsageValue]]:
         return self._parse_report(self._input, data)
 
-    def parse_output_report(self, data: Sequence[int]) -> Dict[Usage, UsageValue]:
+    def parse_output_report(self, data: Sequence[int]) -> List[Tuple[Usage, UsageValue]]:
         return self._parse_report(self._output, data)
 
-    def parse_feature_report(self, data: Sequence[int]) -> Dict[Usage, UsageValue]:
+    def parse_feature_report(self, data: Sequence[int]) -> List[Tuple[Usage, UsageValue]]:
         return self._parse_report(self._feature, data)
 
     def _iterate_raw(self) -> Iterable[Tuple[int, int, Optional[int]]]:
