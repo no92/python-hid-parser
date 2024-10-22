@@ -1067,4 +1067,4 @@ class ReportDescriptor():
                     printl(f'String Maximum ({data})')
 
                 elif tag == TagLocal.DELIMITER:
-                    printl(f'Delemiter ({data})')
+                    printl(f'Delimiter ({data})')
