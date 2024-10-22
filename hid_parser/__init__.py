@@ -154,7 +154,7 @@ class BitNumber(int):
     def _param_repr(value: int, unit: str) -> str:
         if value != 1:
             unit += 's'
-        return f'{value}{unit}'
+        return f'{value} {unit}'
 
     def __repr__(self) -> str:
         byte_str = self._param_repr(self.byte, 'byte')
