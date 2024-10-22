@@ -485,7 +485,25 @@ class VariableItem(MainItem):
             pass
 
     def __repr__(self) -> str:
-        return f'VariableItem(offset={self.offset}, size={self.size}, usage={self.usage})'
+        unit_info = ""
+        resolution_info = ""
+
+        if self.unit:
+            unit_info = f", unit={Unit(self.unit, self.unit_exp)}"
+
+        l_min = self.logical_min
+        l_max = self.logical_max
+        phys_min = self.physical_min if (self.physical_min and self.physical_min != 0) else l_min
+        phys_max = self.physical_max if (self.physical_max and self.physical_max != 0) else l_max
+        unit_exp = self.unit_exp if self.unit_exp else 0
+        if unit_exp >= 8:
+            unit_exp = unit_exp - 16
+        resolution = (l_max - l_min) / ((phys_max - phys_min) * pow(10, unit_exp))
+
+        if resolution != 1:
+            resolution_info = f", resolution={round(resolution, 2)}"
+
+        return f'VariableItem(offset={self.offset}, size={self.size}, usage={self.usage}{unit_info}{resolution_info})'
 
     def parse(self, data: Sequence[int]) -> UsageValue:
         data = _data_bit_shift(data, self.offset, self.size)
